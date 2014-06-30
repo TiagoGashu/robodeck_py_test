@@ -8,7 +8,7 @@ def connectFunction():
 	rospy.wait_for_service('robodeck/connect')
 	try:
 		connect_proxy = rospy.ServiceProxy('robodeck/connect', connect)
-		ans = connect_proxy('192.168.0.1', 2000)
+		ans = connect_proxy('192.168.1.1', 2000)
 		return ans.isConnected
 	except Exception, e:
 		raise e
@@ -25,7 +25,7 @@ def moveFunction():
 def disconnectFunction():
 	rospy.wait_for_service('robodeck/disconnect')
 	try:
-		disconnect_proxy = rospy.ServiceProxy('robodeck/disconnect', disconect)
+		disconnect_proxy = rospy.ServiceProxy('robodeck/disconnect', disconnect)
 		ans = disconnect_proxy()
 		return ans.isDisconnected
 	except Exception, e:
@@ -34,7 +34,8 @@ def disconnectFunction():
 if __name__ == '__main__':
 	try:
 		if(connectFunction()):
-			print 'conectou-se ao robo'
+			print 'conectou-se ao robo'	
+
 			if(moveFunction()):
 				print 'O robo movimentou-se'
 			if(disconnectFunction()):
