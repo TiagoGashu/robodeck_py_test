@@ -116,7 +116,7 @@ CATKIN_DEPENDS message_runtime robodeck_msgs
 
 ## Mark executable scripts (Python etc.) for installation
 ## in contrast to setup.py, you can choose the destination
-install(PROGRAMS bin/move
+install(PROGRAMS bin/move bin/infrared bin/ultrasonic bin/opticalSensor bin/compass
         DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION})
 
 ## Mark executables and/or libraries for installation

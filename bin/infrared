@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 import rospy
 from robodeck_msgs.srv import connect
-from robodeck_msgs.srv import move
+from robodeck_msgs.srv import readInfraredSensors
 from robodeck_msgs.srv import disconnect
 
 def connectFunction():
@@ -13,14 +13,24 @@ def connectFunction():
 	except Exception, e:
 		raise e
 
-def moveFunction(intensity):
-	rospy.wait_for_service('robodeck/move')
+def readDistance():
+	rospy.wait_for_service('robodeck/infraredSensors/read')
 	try:
-		move_proxy = rospy.ServiceProxy('robodeck/move', move)
-		ans = move_proxy(intensity)
-		return ans.executed
+		read_proxy = rospy.ServiceProxy('robodeck/infraredSensors/read', readInfraredSensors)
+		ans = read_proxy(0)
+		return ans.readings
 	except Exception, e:
 		raise e
+
+def readDepth():
+	rospy.wait_for_service('robodeck/infraredSensors/read')
+	try:
+		read_proxy = rospy.ServiceProxy('robodeck/infraredSensors/read', readInfraredSensors)
+		ans = read_proxy(1)
+		return ans.readings
+	except Exception, e:
+		raise e
+
 
 def disconnectFunction():
 	rospy.wait_for_service('robodeck/disconnect')
@@ -36,14 +46,13 @@ if __name__ == '__main__':
 		if(connectFunction()):
 			print 'conectou-se ao robo'	
 
-			if(moveFunction(-32767)):
-				print 'O robo movimentou-se'
-			rospy.sleep(.5)
-			moveFunction(0)
-			rospy.sleep(.5)
-			moveFunction(0)
-			rospy.sleep(.5)
-			moveFunction(0)
+			distances = readDistance();
+			depths = readDepth();
+
+			if (distances):
+				print 'Distancia: esq: ' + str(distances[0]) + '  dir: ' + str(distances[1])
+			if (depths):
+				print 'Prof: frente: ' + str(depths[0]) + '  tras: ' + str(depths[1])
 			
 			if(disconnectFunction()):
 				print 'Desconectou-se do robo'

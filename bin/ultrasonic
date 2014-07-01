@@ -1,0 +1,71 @@
+#!/usr/bin/env python
+import rospy
+from robodeck_msgs.srv import connect
+from robodeck_msgs.srv import readUltrasonicSensorDistance
+from robodeck_msgs.srv import readUltrasonicSensorLuminosity
+from robodeck_msgs.srv import disconnect
+
+def connectFunction():
+	rospy.wait_for_service('robodeck/connect')
+	try:
+		connect_proxy = rospy.ServiceProxy('robodeck/connect', connect)
+		ans = connect_proxy('192.168.1.1', 2000)
+		return ans.isConnected
+	except Exception, e:
+		raise e
+
+def readDistance():
+	readings = []
+	rospy.wait_for_service('robodeck/ultrasonicSensor/distance/read')
+	try:
+		read_proxy = rospy.ServiceProxy('robodeck/ultrasonicSensor/distance/read', readUltrasonicSensorDistance)
+		for x in range(0, 4):
+			ans = read_proxy(x)
+			readings.append(ans.reading)
+		return readings
+	except Exception, e:
+		raise e
+
+def readLuminosity():
+	readings = []
+	rospy.wait_for_service('robodeck/ultrasonicSensor/luminosity/read')
+	try:
+		read_proxy = rospy.ServiceProxy('robodeck/ultrasonicSensor/luminosity/read', readUltrasonicSensorLuminosity)
+		for x in range(0, 4):
+			ans = read_proxy(x)
+			readings.append(ans.reading)
+		return readings
+	except Exception, e:
+		raise e
+
+
+def disconnectFunction():
+	rospy.wait_for_service('robodeck/disconnect')
+	try:
+		disconnect_proxy = rospy.ServiceProxy('robodeck/disconnect', disconnect)
+		ans = disconnect_proxy()
+		return ans.isDisconnected
+	except Exception, e:
+		raise e
+
+if __name__ == '__main__':
+	try:
+		if(connectFunction()):
+			print 'conectou-se ao robo'	
+
+			distances = readDistance();
+			luminosities = readLuminosity();
+
+			if (distances):
+				print 'Distancia: frente: ' + str(distances[0]) + '  dir: ' + str(distances[1]) + '  esq: ' + str(distances[2]) + '  tras: ' + str(distances[3]) 
+			if (luminosities):
+				print 'Luminosidade: frente: ' + str(luminosities[0]) + '  dir: ' + str(luminosities[1]) + '  esq: ' + str(luminosities[2]) + '  tras: ' + str(luminosities[3]) 
+			
+			if(disconnectFunction()):
+				print 'Desconectou-se do robo'
+			else:
+				print 'Problema ao tentar desconectar-se'
+		else:
+			print 'problema ao tentar enviar o comando de conexao'
+	except Exception, e:
+		raise e

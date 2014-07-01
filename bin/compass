@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 import rospy
 from robodeck_msgs.srv import connect
-from robodeck_msgs.srv import move
+from robodeck_msgs.srv import readCompass
 from robodeck_msgs.srv import disconnect
 
 def connectFunction():
@@ -13,12 +13,13 @@ def connectFunction():
 	except Exception, e:
 		raise e
 
-def moveFunction(intensity):
-	rospy.wait_for_service('robodeck/move')
+def readCompass():
+	rospy.wait_for_service('robodeck/compass/read')
 	try:
-		move_proxy = rospy.ServiceProxy('robodeck/move', move)
-		ans = move_proxy(intensity)
-		return ans.executed
+		read_proxy = rospy.ServiceProxy('robodeck/compass/read', readCompass)
+		# NAO FUNCIONAAAAAAAAAAA!
+		ans = read_proxy()
+		return ans.reading
 	except Exception, e:
 		raise e
 
@@ -36,14 +37,10 @@ if __name__ == '__main__':
 		if(connectFunction()):
 			print 'conectou-se ao robo'	
 
-			if(moveFunction(-32767)):
-				print 'O robo movimentou-se'
-			rospy.sleep(.5)
-			moveFunction(0)
-			rospy.sleep(.5)
-			moveFunction(0)
-			rospy.sleep(.5)
-			moveFunction(0)
+			reading = readCompass()
+
+			if(reading):
+				print 'Bussola: ' + reading
 			
 			if(disconnectFunction()):
 				print 'Desconectou-se do robo'
